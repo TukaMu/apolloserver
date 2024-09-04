@@ -1,12 +1,17 @@
-import hash from "../../libs/hash";
-import token from "../../libs/token";
+import { hash, token } from "@/libs";
 
-import { ILoginByUserUC, ILoginByUserUCArgs, ILoginByUserUCResponse } from "./login-by-user-uc.interface";
-import { GetUserUC } from "../user/get-user-uc"
+import { ILoginByUserUC, ILoginByUserUCArgs, ILoginByUserUCResponse } from ".";
+import { IGetUserUC } from "@/useCases/user";
 
 export class LoginByUserUC implements ILoginByUserUC {
+    constructor(
+        private GetUserUC: IGetUserUC,
+        private HashLib: typeof hash,
+        private TokenLib: typeof token
+    ) { }
+
     async execute(data: ILoginByUserUCArgs): Promise<ILoginByUserUCResponse> {
-        const userData = await new GetUserUC().execute({
+        const userData = await this.GetUserUC.execute({
             login: data.login
         })
 
@@ -14,18 +19,18 @@ export class LoginByUserUC implements ILoginByUserUC {
             throw new Error(`Usuário com login ${data.login} não foi encontrado!`)
         }
 
-        const validationPassword = await hash.validate({
+        const validationPassword = await this.HashLib.validate({
             hash: userData.password,
             value: data.password
         })
 
-        const tokenData = await token.create({
-            login: userData.login,
-            name: userData.name,
-            type: userData.type
-        })
-
         if (validationPassword) {
+            const tokenData = await this.TokenLib.create({
+                login: userData.login,
+                name: userData.name,
+                type: userData.type
+            })
+
             return {
                 token: tokenData,
                 type: userData.type

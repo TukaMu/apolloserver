@@ -1,20 +1,35 @@
 import _ from "lodash";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
-import permissions from '../libs/permissions'
+import { BaseResolver } from "@/libs/baseResolver";
 
-import { StoreUserInput } from '../dtos/inputs/user'
-import { UserModel, UserModelResponse } from "../dtos/models/user";
-import { StoreUserUC } from "../useCases/user/store-user-uc";
+import { StoreUserInput } from '@/dtos/inputs'
+import { UserModel, UserModelResponse } from "@/dtos/models";
+import { GetUserUC, IGetUserUC, IStoreUserUC, StoreUserUC } from "@/useCases/user";
 
 @Resolver(() => UserModel)
-export class UsersResolver {
+export class UsersResolver extends BaseResolver {
+    constructor(
+        private GetUser: IGetUserUC,
+        private StoreUser: IStoreUserUC,
+    ) {
+        super();
+        this.GetUser = new GetUserUC(
+            this.MongoDB
+        )
+        this.StoreUser = new StoreUserUC(
+            this.GetUser,
+            this.HashLib,
+            this.MongoDB
+        )
+    }
+
     @Mutation(() => UserModelResponse)
     async storeUser(@Arg("data") data: StoreUserInput, @Ctx() context: any) {
-        return permissions.validate({
+        return this.PermissionsLib.validate({
             requiredPermissions: [],
             permissions: context.user.type,
             endPoint: context.endPoint,
-            function: () => new StoreUserUC().execute(data)
+            function: () => this.StoreUser.execute(data)
         })
     }
 }

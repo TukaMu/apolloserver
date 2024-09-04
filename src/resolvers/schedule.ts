@@ -1,46 +1,66 @@
 import { Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from "type-graphql";
-import permissions from '../libs/permissions'
+import { BaseResolver } from "@/libs/baseResolver";
 
-import { AllUserType } from '../dtos/enums/user-type'
-import { ScheduleInput, FetchScheduleInput } from "../dtos/inputs/schedule";
-import { ScheduleModel } from "../dtos/models/schedule";
-import { FetchSchedulesUC } from "../useCases/schedule/fetch-schedules-uc";
-import { StoreScheduleUC } from "../useCases/schedule/store-schedule-uc";
-import { UserModelResponse } from "../dtos/models/user";
-import { GetUserUC } from "../useCases/user/get-user-uc";
+import { AllUserType } from '@/dtos/enums'
+import { ScheduleInput, FetchScheduleInput } from "@/dtos/inputs";
+import { ScheduleModel, ScheduleResponseModel, UserModelResponse } from "@/dtos/models";
+import { FetchSchedulesUC, IFetchSchedulesUC, IStoreScheduleUC, StoreScheduleUC } from "@/useCases/schedule";
+import { GetUserUC, IGetUserUC, FetchUsersUC, IFetchUsersUC } from "@/useCases/user";
 
-@Resolver(() => ScheduleModel)
-export class SchedulesResolver {
-    @Query(() => [ScheduleModel])
+@Resolver(() => ScheduleResponseModel)
+export class SchedulesResolver extends BaseResolver {
+    constructor(
+        private GetUser: IGetUserUC,
+        private FetchSchedules: IFetchSchedulesUC,
+        private StoreSchedule: IStoreScheduleUC,
+        private FetchUsers: IFetchUsersUC,
+    ) {
+        super();
+        this.FetchUsers = new FetchUsersUC(
+            this.MongoDB
+        )
+        this.GetUser = new GetUserUC(
+            this.MongoDB
+        )
+        this.FetchSchedules = new FetchSchedulesUC(
+            this.MongoDB
+        )
+        this.StoreSchedule = new StoreScheduleUC(
+            this.FetchUsers,
+            this.MongoDB
+        )
+    }
+
+    @Query(() => [ScheduleResponseModel])
     async fetchSchedules(@Arg("data") data: FetchScheduleInput, @Ctx() context: any) {
-        return permissions.validate({
+        return this.PermissionsLib.validate({
             requiredPermissions: [AllUserType.customer, AllUserType.teacher],
             permissions: context.user.type,
             endPoint: context.endPoint,
-            function: () => new FetchSchedulesUC().execute(data)
+            function: () => this.FetchSchedules.execute(data)
         })
     }
 
-    @Mutation(() => ScheduleModel)
+    @Mutation(() => ScheduleResponseModel)
     async storeSchedule(@Arg("data") data: ScheduleInput, @Ctx() context: any) {
-        return permissions.validate({
+        return this.PermissionsLib.validate({
             requiredPermissions: [AllUserType.teacher],
             permissions: context.user.type,
             endPoint: context.endPoint,
-            function: () => new StoreScheduleUC().execute(data)
+            function: () => this.StoreSchedule.execute(data)
         })
     }
 
     @FieldResolver(() => UserModelResponse)
     async customer(@Root() schedule: ScheduleModel) {
-        return new GetUserUC().execute({
+        return this.GetUser.execute({
             id: schedule.customerId
         })
     }
 
     @FieldResolver(() => UserModelResponse)
     async teacher(@Root() schedule: ScheduleModel) {
-        return new GetUserUC().execute({
+        return this.GetUser.execute({
             id: schedule.teacherId
         })
     }

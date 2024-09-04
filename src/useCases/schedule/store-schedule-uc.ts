@@ -1,17 +1,23 @@
 import _ from "lodash";
-import mongodb from "../../libs/mongodb";
-import { ScheduleModel } from "../../dtos/models/schedule";
-import { IStoreScheduleUC, IStoreScheduleUCArgs, IStoreScheduleUCResponse } from "./store-schedule-uc.interface";
-import { FetchUsersUC } from "../user/fetch-users-uc";
-import { AllUserType } from "../../dtos/enums/user-type";
+import { mongodb } from "@/libs";
+import { AllUserType } from "@/dtos/enums";
+import { ScheduleModel } from "@/dtos/models";
+
+import { IStoreScheduleUC, IStoreScheduleUCArgs, IStoreScheduleUCResponse } from ".";
+import { IFetchUsersUC } from "@/useCases/user";
 
 export class StoreScheduleUC implements IStoreScheduleUC {
-    async execute(data: IStoreScheduleUCArgs): Promise<IStoreScheduleUCResponse> {
+    constructor(
+        private FetchUsers: IFetchUsersUC,
+        private MongoDB: typeof mongodb,
+    ) { }
+
+    async execute(data: IStoreScheduleUCArgs): IStoreScheduleUCResponse {
         if (data.customerId === data.teacherId) {
             throw new Error('Os dois usuários são iguas!')
         }
 
-        const users = await new FetchUsersUC().execute({
+        const users = await this.FetchUsers.execute({
             id: [data.customerId, data.teacherId],
         })
 
@@ -28,18 +34,10 @@ export class StoreScheduleUC implements IStoreScheduleUC {
             throw new Error('Algum usuário não possui um cargo válido!')
         }
 
-        const dataToStore = {
-            ...data,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        }
-
-        const response = await mongodb.run({
+        return await this.MongoDB.run({
             action: 'store',
             collection: 'schedules',
-            data: dataToStore
+            data
         }) as ScheduleModel;
-
-        return response
     }
 }

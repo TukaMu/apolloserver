@@ -1,15 +1,18 @@
-import mongodb from "../../libs/mongodb";
-import { ScheduleModel } from "../../dtos/models/schedule";
-import { IFetchSchedulesUC, IFetchSchedulesUCArgs, IFetchSchedulesUCResponse } from "./fetch-schedules-uc.interface";
+import { mongodb } from "@/libs";
+
+import { ScheduleModel } from "@/dtos/models";
+import { IFetchSchedulesUC, IFetchSchedulesUCArgs, IFetchSchedulesUCResponse } from ".";
 
 export class FetchSchedulesUC implements IFetchSchedulesUC {
-    async execute(data: IFetchSchedulesUCArgs): Promise<IFetchSchedulesUCResponse[]> {
-        const response = await mongodb.run({
+    constructor(
+        private MongoDB: typeof mongodb,
+    ) { }
+
+    async execute(data: IFetchSchedulesUCArgs): IFetchSchedulesUCResponse {
+        return await this.MongoDB.run({
             action: 'fetch',
             collection: 'schedules',
             data
         }) as ScheduleModel[]
-
-        return response
     }
 }

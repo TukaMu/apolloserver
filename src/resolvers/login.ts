@@ -1,20 +1,36 @@
 import { Arg, Ctx, Query, Resolver } from "type-graphql";
-import permissions from '../libs/permissions'
+import { BaseResolver } from "@/libs/baseResolver";
 
-import { AllUserType } from '../dtos/enums/user-type'
-import { LoginInput } from "../dtos/inputs/login";
-import { LoginModel } from "../dtos/models/login";
-import { LoginByUserUC } from "../useCases/login/login-by-user-uc";
+import { AllUserType } from '@/dtos/enums'
+import { LoginInput } from "@/dtos/inputs";
+import { LoginModel } from "@/dtos/models";
+import { ILoginByUserUC, LoginByUserUC } from "@/useCases/login";
+import { IGetUserUC, GetUserUC } from "@/useCases/user";
 
 @Resolver(() => LoginModel)
-export class LoginResolver {
+export class LoginResolver extends BaseResolver {
+    constructor(
+        private GetUser: IGetUserUC,
+        private LoginByUser: ILoginByUserUC,
+    ) {
+        super();
+        this.GetUser = new GetUserUC(
+            this.MongoDB
+        )
+        this.LoginByUser = new LoginByUserUC(
+            this.GetUser,
+            this.HashLib,
+            this.TokenLib,
+        )
+    }
+
     @Query(() => LoginModel)
     async loginByUser(@Arg("data") data: LoginInput, @Ctx() context: any) {
-        return permissions.validate({
+        return this.PermissionsLib.validate({
             requiredPermissions: [AllUserType.open],
             permissions: context.user.type,
             endPoint: context.endPoint,
-            function: () => new LoginByUserUC().execute(data)
-        })
+            function: () => this.LoginByUser.execute(data)
+        });
     }
 }

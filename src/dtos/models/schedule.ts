@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
-import { UserModelResponse } from "./user";
+
+import { UserModelResponse } from ".";
 
 @ObjectType()
 export class ScheduleModel {
@@ -9,14 +10,8 @@ export class ScheduleModel {
     @Field()
     customerId: string;
 
-    @Field(() => UserModelResponse, { nullable: true })
-    customer?: UserModelResponse;
-
     @Field()
     teacherId: string;
-
-    @Field(() => UserModelResponse, { nullable: true })
-    teacher?: UserModelResponse;
 
     @Field()
     location: string;
@@ -35,4 +30,13 @@ export class ScheduleModel {
 
     @Field()
     updatedAt: Date;
+}
+
+@ObjectType()
+export class ScheduleResponseModel extends ScheduleModel {
+    @Field(() => UserModelResponse, { nullable: true })
+    customer?: UserModelResponse;
+
+    @Field(() => UserModelResponse, { nullable: true })
+    teacher?: UserModelResponse;
 }

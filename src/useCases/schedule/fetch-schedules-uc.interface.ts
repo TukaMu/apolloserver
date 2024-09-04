@@ -1,10 +1,10 @@
-import { FetchScheduleInput } from "../../dtos/inputs/schedule";
-import { ScheduleModel } from "../../dtos/models/schedule";
+import { FetchScheduleInput } from "@/dtos/inputs";
+import { ScheduleModel } from "@/dtos/models";
 
 export interface IFetchSchedulesUCArgs extends FetchScheduleInput { }
 
-export interface IFetchSchedulesUCResponse extends ScheduleModel { }
+export type IFetchSchedulesUCResponse = Promise<ScheduleModel[]>
 
 export interface IFetchSchedulesUC {
-    execute(data: IFetchSchedulesUCArgs): Promise<IFetchSchedulesUCResponse[]>
+    execute(data: IFetchSchedulesUCArgs): IFetchSchedulesUCResponse
 }

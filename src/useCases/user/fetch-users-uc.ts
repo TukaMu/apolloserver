@@ -1,10 +1,14 @@
-import mongodb from "../../libs/mongodb";
-
-import { IFetchUsersUC, IFetchUsersUCArgs, IFetchUsersUCResponse } from "./fetch-users-uc.interface";
-import { UserModel } from "../../dtos/models/user";
 import _ from "lodash";
+import { mongodb } from "@/libs";
+
+import { UserModel } from "@/dtos/models";
+import { IFetchUsersUC, IFetchUsersUCArgs, IFetchUsersUCResponse } from ".";
 
 export class FetchUsersUC implements IFetchUsersUC {
+    constructor(
+        private MongoDB: typeof mongodb
+    ) { }
+
     //TODO -> mover para o mongo
     async execute(data: IFetchUsersUCArgs): Promise<IFetchUsersUCResponse[]> {
         const query = _.reduce(data, (result, value, key) => {
@@ -12,12 +16,10 @@ export class FetchUsersUC implements IFetchUsersUC {
             return result
         }, { "$and": [] } as any)
 
-        const response = await mongodb.run({
+        return await this.MongoDB.run({
             action: 'fetch',
             collection: 'users',
             data: query,
         }) as UserModel[]
-
-        return response;
     }
 }

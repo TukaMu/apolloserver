@@ -30,12 +30,12 @@ type LoginModel {
 }
 
 type Mutation {
-  storeSchedule(data: ScheduleInput!): ScheduleModel!
+  storeSchedule(data: ScheduleInput!): ScheduleResponseModel!
   storeUser(data: StoreUserInput!): UserModelResponse!
 }
 
 type Query {
-  fetchSchedules(data: FetchScheduleInput!): [ScheduleModel!]!
+  fetchSchedules(data: FetchScheduleInput!): [ScheduleResponseModel!]!
   loginByUser(data: LoginInput!): LoginModel!
 }
 
@@ -48,7 +48,7 @@ input ScheduleInput {
   teacherId: String!
 }
 
-type ScheduleModel {
+type ScheduleResponseModel {
   createdAt: DateTimeISO!
   customer: UserModelResponse
   customerId: String!

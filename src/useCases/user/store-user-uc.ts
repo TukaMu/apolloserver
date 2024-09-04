@@ -1,14 +1,18 @@
 import _ from "lodash";
-import mongodb from "../../libs/mongodb";
-import hash from "../../libs/hash";
+import { hash, mongodb } from '@/libs'
 
-import { IStoreUserUC, IStoreUserUCArgs, IStoreUserUCResponse } from "./store-user-uc.interface";
-import { UserModel } from "../../dtos/models/user";
-import { GetUserUC } from "./get-user-uc";
+import { UserModel } from "@/dtos/models";
+import { IGetUserUC, IStoreUserUC, IStoreUserUCArgs, IStoreUserUCResponse } from ".";
 
 export class StoreUserUC implements IStoreUserUC {
-    async execute(data: IStoreUserUCArgs): Promise<IStoreUserUCResponse> {
-        const userData = await new GetUserUC().execute({
+    constructor(
+        private GetUserUC: IGetUserUC,
+        private HashLib: typeof hash,
+        private MongoDB: typeof mongodb
+    ) { }
+
+    async execute(data: IStoreUserUCArgs): IStoreUserUCResponse {
+        const userData = await this.GetUserUC.execute({
             login: data.login
         })
 
@@ -16,17 +20,15 @@ export class StoreUserUC implements IStoreUserUC {
             throw new Error(`Usuário com login ${data.login} já existe!`)
         }
 
-        const dataToStore = {
-            ...data,
-            password: await hash.create({ value: data.password }),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        }
+        const password = await this.HashLib.create({ value: data.password });
 
-        const response = await mongodb.run({
+        const response = await this.MongoDB.run({
             action: 'store',
             collection: 'users',
-            data: dataToStore
+            data: {
+                ...data,
+                password
+            }
         }) as UserModel
 
         return _.omit(response, 'password');

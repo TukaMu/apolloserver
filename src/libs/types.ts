@@ -1,0 +1,1 @@
+export type ResponseNullABle<T> = Promise<T | null>

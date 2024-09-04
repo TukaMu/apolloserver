@@ -1,15 +1,18 @@
-import mongodb from "../../libs/mongodb";
+import { mongodb } from "@/libs";
 
-import { IGetUserUC, IGetUserUCArgs, IGetUserUCResponse } from "./get-user-uc.interface";
-import { UserModel } from "../../dtos/models/user";
+import { UserModel } from "@/dtos/models";
+import { IGetUserUC, IGetUserUCArgs, IGetUserUCResponse } from ".";
 
 export class GetUserUC implements IGetUserUC {
-    async execute(data: IGetUserUCArgs): Promise<IGetUserUCResponse> {
-        return await mongodb.run({
+    constructor(
+        private MongoDB: typeof mongodb
+    ) { }
+
+    async execute(data: IGetUserUCArgs): IGetUserUCResponse {
+        return await this.MongoDB.run({
             action: 'get',
             collection: 'users',
             data,
-            nullable: true
         }) as UserModel
     }
 }

@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "dev": "tsnd --respawn --transpile-only src/server.ts"
+    "dev": "tsnd --respawn --transpile-only src/server.ts",
+    "test": "npx jest --watch --testPathPattern"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,8 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "graphql": "^16.9.0",
+    "jest-mock-extended": "^3.0.7",
+    "jest-when": "^3.6.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mongodb": "^6.8.0",
@@ -22,10 +25,15 @@
     "type-graphql": "^2.0.0-rc.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@types/bcrypt": "^5.0.2",
+    "@types/jest": "^29.5.12",
+    "@types/jest-when": "^3.5.5",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.7",
+    "ts-jest": "^29.2.5",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.4"
   }
 }

@@ -1,5 +1,5 @@
-import { LoginModel } from "../../dtos/models/login";
-import { LoginInput } from "../../dtos/inputs/login";
+import { LoginModel } from "@/dtos/models";
+import { LoginInput } from "@/dtos/inputs";
 
 export interface ILoginByUserUCArgs extends LoginInput { }
 

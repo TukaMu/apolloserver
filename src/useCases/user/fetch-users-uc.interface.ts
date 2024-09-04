@@ -1,4 +1,4 @@
-import { UserModel } from "../../dtos/models/user";
+import { UserModel } from "@/dtos/models";
 
 export interface IFetchUsersUCArgs {
     login?: string[]

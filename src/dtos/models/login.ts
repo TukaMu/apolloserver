@@ -1,6 +1,6 @@
 import { Field, ObjectType, registerEnumType } from "type-graphql";
 
-import { AllUserType } from "../enums/user-type";
+import { AllUserType } from "@/dtos/enums";
 
 registerEnumType(AllUserType, {
     name: "AllUserType",

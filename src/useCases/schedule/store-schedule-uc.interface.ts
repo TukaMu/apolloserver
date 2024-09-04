@@ -1,10 +1,10 @@
-import { ScheduleInput } from "../../dtos/inputs/schedule";
-import { ScheduleModel } from "../../dtos/models/schedule";
+import { ScheduleInput } from "@/dtos/inputs";
+import { ScheduleModel } from "@/dtos/models";
 
 export interface IStoreScheduleUCArgs extends ScheduleInput { }
 
-export interface IStoreScheduleUCResponse extends ScheduleModel { }
+export type IStoreScheduleUCResponse = Promise<ScheduleModel>
 
 export interface IStoreScheduleUC {
-    execute(data: IStoreScheduleUCArgs): Promise<IStoreScheduleUCResponse>
+    execute(data: IStoreScheduleUCArgs): IStoreScheduleUCResponse
 }

@@ -1,13 +1,14 @@
 import 'reflect-metadata';
+import 'tsconfig-paths/register';
 
 import path from 'node:path'
 import _ from 'lodash'
 
 import { ApolloServer } from 'apollo-server';
 import { buildSchema } from 'type-graphql';
-import resolvers from './resolvers';
-import token from './libs/token';
-import { AllUserType } from './dtos/enums/user-type'
+import { AllUserType } from '@/dtos/enums/user-type'
+import resolvers from '@/resolvers';
+import token from '@/libs/token';
 
 const regex = /^\s*(\w+)\s*\((.*)\)\s*{\s*$/gm;
 

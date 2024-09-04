@@ -1,9 +1,9 @@
-import { UserModelResponse } from "../../dtos/models/user";
-import { StoreUserInput } from "../../dtos/inputs/user";
+import { UserModelResponse } from "@/dtos/models";
+import { StoreUserInput } from "@/dtos/inputs";
 
 export interface IStoreUserUCArgs extends StoreUserInput { }
-export interface IStoreUserUCResponse extends UserModelResponse { }
+export type IStoreUserUCResponse = Promise<UserModelResponse>
 
 export interface IStoreUserUC {
-    execute(data: IStoreUserUCArgs): Promise<IStoreUserUCResponse>
+    execute(data: IStoreUserUCArgs): IStoreUserUCResponse
 }

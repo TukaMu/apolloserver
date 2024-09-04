@@ -1,12 +1,15 @@
-import { UserModel } from "../../dtos/models/user";
+import { ResponseNullABle } from "@/libs";
+
+import { UserModel } from "@/dtos/models";
 
 export interface IGetUserUCArgs {
     login?: string
     name?: string
     id?: string
 }
-export interface IGetUserUCResponse extends UserModel { }
+
+export type IGetUserUCResponse = ResponseNullABle<UserModel>
 
 export interface IGetUserUC {
-    execute(data: IGetUserUCArgs): Promise<IGetUserUCResponse>
+    execute(data: IGetUserUCArgs): IGetUserUCResponse
 }

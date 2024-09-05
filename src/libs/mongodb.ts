@@ -19,6 +19,8 @@ interface runParams {
 
 class MongoDB {
     async run(params: runParams) {
+        console.log(JSON.stringify(params, null, 4))
+
         const uri = constants.mongodbURL
         const client = new MongoClient(uri);
 

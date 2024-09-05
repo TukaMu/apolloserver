@@ -1,4 +1,4 @@
-import _, { has } from "lodash";
+import _ from "lodash";
 import { mock } from 'jest-mock-extended'
 import { verifyAllWhenMocksCalled, when } from 'jest-when'
 import { hash, mongodb, tests } from "@/libs";

@@ -5,30 +5,22 @@ import { AllUserType } from '@/dtos/enums'
 import { ScheduleInput, FetchScheduleInput } from "@/dtos/inputs";
 import { ScheduleModel, ScheduleResponseModel, UserModelResponse } from "@/dtos/models";
 import { FetchSchedulesUC, IFetchSchedulesUC, IStoreScheduleUC, StoreScheduleUC } from "@/useCases/schedule";
-import { GetUserUC, IGetUserUC, FetchUsersUC, IFetchUsersUC } from "@/useCases/user";
+import { FetchUsersUC, IFetchUsersUC } from "@/useCases/user";
+import { UsersResolver } from './user'
 
 @Resolver(() => ScheduleResponseModel)
 export class SchedulesResolver extends BaseResolver {
-    constructor(
-        private GetUser: IGetUserUC,
-        private FetchSchedules: IFetchSchedulesUC,
-        private StoreSchedule: IStoreScheduleUC,
-        private FetchUsers: IFetchUsersUC,
-    ) {
+    private FetchSchedules: IFetchSchedulesUC
+    private StoreSchedule: IStoreScheduleUC
+    private FetchUsers: IFetchUsersUC
+    private UsersResolver: UsersResolver
+
+    constructor() {
         super();
-        this.FetchUsers = new FetchUsersUC(
-            this.MongoDB
-        )
-        this.GetUser = new GetUserUC(
-            this.MongoDB
-        )
-        this.FetchSchedules = new FetchSchedulesUC(
-            this.MongoDB
-        )
-        this.StoreSchedule = new StoreScheduleUC(
-            this.FetchUsers,
-            this.MongoDB
-        )
+        this.UsersResolver = new UsersResolver()
+        this.FetchUsers = new FetchUsersUC(this.MongoDB)
+        this.FetchSchedules = new FetchSchedulesUC(this.MongoDB)
+        this.StoreSchedule = new StoreScheduleUC(this.FetchUsers, this.MongoDB)
     }
 
     @Query(() => [ScheduleResponseModel])
@@ -52,16 +44,12 @@ export class SchedulesResolver extends BaseResolver {
     }
 
     @FieldResolver(() => UserModelResponse)
-    async customer(@Root() schedule: ScheduleModel) {
-        return this.GetUser.execute({
-            id: schedule.customerId
-        })
+    async customer(@Root() schedule: ScheduleModel, @Ctx() context: any) {
+        return this.UsersResolver.LoaderById(schedule.customerId, context)
     }
 
     @FieldResolver(() => UserModelResponse)
-    async teacher(@Root() schedule: ScheduleModel) {
-        return this.GetUser.execute({
-            id: schedule.teacherId
-        })
+    async teacher(@Root() schedule: ScheduleModel, @Ctx() context: any) {
+        return this.UsersResolver.LoaderById(schedule.teacherId, context)
     }
 }

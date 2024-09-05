@@ -8,19 +8,13 @@ import { GetUserUC, IGetUserUC, IStoreUserUC, StoreUserUC } from "@/useCases/use
 
 @Resolver(() => UserModel)
 export class UsersResolver extends BaseResolver {
-    constructor(
-        private GetUser: IGetUserUC,
-        private StoreUser: IStoreUserUC,
-    ) {
+    private GetUser: IGetUserUC
+    private StoreUser: IStoreUserUC
+
+    constructor() {
         super();
-        this.GetUser = new GetUserUC(
-            this.MongoDB
-        )
-        this.StoreUser = new StoreUserUC(
-            this.GetUser,
-            this.HashLib,
-            this.MongoDB
-        )
+        this.GetUser = new GetUserUC(this.MongoDB)
+        this.StoreUser = new StoreUserUC(this.GetUser, this.HashLib, this.MongoDB)
     }
 
     @Mutation(() => UserModelResponse)
@@ -31,5 +25,17 @@ export class UsersResolver extends BaseResolver {
             endPoint: context.endPoint,
             function: () => this.StoreUser.execute(data)
         })
+    }
+
+    async LoaderById(@Arg("id") id: string, @Ctx() context: any) {
+        const { userLoader } = context.loaders;
+
+        const user = await userLoader.load(id);
+
+        if (user instanceof Error) {
+            throw new Error(user.message);
+        }
+
+        return user;
     }
 }

@@ -9,19 +9,13 @@ import { IGetUserUC, GetUserUC } from "@/useCases/user";
 
 @Resolver(() => LoginModel)
 export class LoginResolver extends BaseResolver {
-    constructor(
-        private GetUser: IGetUserUC,
-        private LoginByUser: ILoginByUserUC,
-    ) {
+    private GetUser: IGetUserUC
+    private LoginByUser: ILoginByUserUC
+
+    constructor() {
         super();
-        this.GetUser = new GetUserUC(
-            this.MongoDB
-        )
-        this.LoginByUser = new LoginByUserUC(
-            this.GetUser,
-            this.HashLib,
-            this.TokenLib,
-        )
+        this.GetUser = new GetUserUC(this.MongoDB)
+        this.LoginByUser = new LoginByUserUC(this.GetUser, this.HashLib, this.TokenLib)
     }
 
     @Query(() => LoginModel)

@@ -1,4 +1,14 @@
-import { Field, InputType } from "type-graphql";
+import { Field, InputType, registerEnumType } from "type-graphql";
+
+import { Percentage, ScheduleSubject } from "@/dtos/enums";
+
+registerEnumType(Percentage, {
+    name: "Percentage",
+});
+
+registerEnumType(ScheduleSubject, {
+    name: "ScheduleSubject",
+});
 
 @InputType()
 export class ScheduleInput {
@@ -18,7 +28,13 @@ export class ScheduleInput {
     location: string;
 
     @Field()
-    subject: string;
+    value: number;
+
+    @Field(() => String)
+    subject: ScheduleSubject;
+
+    @Field(() => String)
+    percentage: Percentage;
 }
 
 @InputType()

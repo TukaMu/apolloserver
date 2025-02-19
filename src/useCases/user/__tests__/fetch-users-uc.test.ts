@@ -35,7 +35,7 @@ describe('fetch-users-uc => execute', () => {
                 action: 'fetch',
                 collection: 'users',
                 data: {
-                    "$and": [{ id: { "$in": [customerId, teacherId] } }]
+                    id: { "$in": [customerId, teacherId] }
                 }
             })
             .mockResolvedValue(usersMock)
@@ -53,7 +53,7 @@ describe('fetch-users-uc => execute', () => {
                 action: 'fetch',
                 collection: 'users',
                 data: {
-                    "$and": [{ id: { "$in": [customerId, teacherId] } }]
+                    id: { "$in": [customerId, teacherId] }
                 }
             })
             .mockResolvedValue([])

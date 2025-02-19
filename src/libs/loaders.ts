@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import DataLoader from 'dataloader';
+
 import { IFetchUsersUC } from '@/useCases/user';
 
 const createUserLoaderById = (fetchUsersUC: IFetchUsersUC) =>
@@ -7,9 +8,16 @@ const createUserLoaderById = (fetchUsersUC: IFetchUsersUC) =>
         try {
             const usersData = await fetchUsersUC.execute({ id: Array.from(ids) });
             const userMap = _.keyBy(usersData, 'id');
-            return Array.from(ids).map(id => userMap[id] || new Error(`User with id ${id} not found`));
+
+            return _.map(ids, (id) => {
+                if (userMap[id]) return userMap[id];
+                return new Error(`User com id ${id} não foi encontrado - Loader`);
+            }).filter(Boolean);
         } catch (error) {
-            return Array.from(ids).map(() => error instanceof Error ? error : new Error('Unknown error'));
+            return _.map(ids, () => {
+                if (error instanceof Error) return error;
+                return new Error('Unknown error - Loader');
+            });
         }
     });
 

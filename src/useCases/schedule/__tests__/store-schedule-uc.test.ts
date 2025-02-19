@@ -4,7 +4,7 @@ import { verifyAllWhenMocksCalled, when } from 'jest-when'
 import { faker } from '@faker-js/faker';
 import { mongodb, tests } from "@/libs";
 
-import { AllUserType } from "@/dtos/enums";
+import { AllUserType, Percentage, ScheduleSubject } from "@/dtos/enums";
 import { ScheduleModel, UserModel } from "@/dtos/models";
 import { StoreScheduleUC, IStoreScheduleUC } from "..";
 import { IFetchUsersUC } from "@/useCases/user";
@@ -23,7 +23,9 @@ const scheduleData = {
     endsAt: new Date(),
     startsAt: new Date(),
     location: 'location',
-    subject: 'subject',
+    subject: ScheduleSubject.Music,
+    percentage: Percentage.Fifty,
+    value: 100,
     teacherId
 }
 const scheduleMock = mock<ScheduleModel>(scheduleData)

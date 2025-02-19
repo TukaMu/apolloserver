@@ -51,7 +51,7 @@ describe('login-by-user-uc => execute', () => {
                 name: userDataMock.name,
                 type: userDataMock.type
             })
-            .mockResolvedValue(tokenData)
+            .mockResolvedValue(Promise.resolve(tokenData))
 
         const response = await loginByUserUCMock.execute({
             login: userDataMock.login,

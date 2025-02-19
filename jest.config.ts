@@ -1,4 +1,8 @@
-export default {
+require('ts-node').register({
+    project: 'tsconfig.json'
+});
+
+module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     testMatch: ['**/?(*.)+(test).ts'],

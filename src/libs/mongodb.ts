@@ -1,65 +1,109 @@
-import _ from 'lodash';
-import { MongoClient } from 'mongodb'
-import crypto from 'crypto'
+import { DataSource } from 'typeorm';
+import constants from '@/constants'
+import { Users, Schedules } from '@/entities';
+import { ScheduleModel, UserModel } from '@/dtos/models';
+import { ObjectId } from 'mongodb';
 
-import constants from '@/constants';
+const AppDataSource = new DataSource({
+    type: 'mongodb',
+    url: constants.mongodbURL,
+    synchronize: true,
+    logging: true,
+    entities: [Users, Schedules],
+    migrations: ['src/migrations/*.ts'],
+    subscribers: [],
+});
+
+type collection = 'schedules' | 'users';
+
+const collectionAndEntities = {
+    'users': { repository: Users, model: UserModel },
+    'schedules': { repository: Schedules, model: ScheduleModel },
+}
 
 interface runParams {
     action: 'update' | 'store' | 'delete' | 'get' | 'fetch',
-    collection: 'schedules' | 'customers' | 'users',
+    collection: collection,
     data: object,
 }
 
-// async function listDatabases(client: MongoClient) {
-//     const databasesList = await client.db().admin().listDatabases();
-
-//     console.log("Databases:");
-//     databasesList.databases.forEach(db => console.log(` - ${db.name}`));
-// };
+function replaceIdOrUnderscoreId(data: any, to: 'id' | '_id', newObjectId?: boolean): any {
+    if (Array.isArray(data)) {
+        return data.map(item => newObjectId && typeof item === 'string' ? new ObjectId(item) : replaceIdOrUnderscoreId(item, to, newObjectId));
+    } else if (data !== null && typeof data === 'object') {
+        if (data instanceof Date) {
+            return data;
+        }
+        const correctId = to === 'id' ? '_id' : 'id';
+        const newData: { [key: string]: any } = {};
+        for (const key in data) {
+            const value = data[key];
+            if (data.hasOwnProperty(key)) {
+                if (key === correctId) {
+                    if (typeof value === 'string' && to === '_id') {
+                        newData[to] = new ObjectId(value)
+                    } else if (value instanceof ObjectId) {
+                        newData[to] = value.toString();
+                    } else {
+                        newData[to] = to === '_id' ? replaceIdOrUnderscoreId(value, to, true) : value;
+                    }
+                } else {
+                    newData[key] = replaceIdOrUnderscoreId(value, to, newObjectId);
+                }
+            }
+        }
+        return newData;
+    }
+    return data;
+}
 
 class MongoDB {
     async run(params: runParams) {
-        console.log(JSON.stringify(params, null, 4))
+        params.data = await replaceIdOrUnderscoreId(params.data, '_id');
 
-        const uri = constants.mongodbURL
-        const client = new MongoClient(uri);
+        await AppDataSource.initialize();
+        const collectionEntity = collectionAndEntities[params.collection];
+        const repository = AppDataSource.getMongoRepository(collectionEntity.repository);
 
         try {
-            await client.connect();
-            const connection = client.db('gestor').collection(params.collection);
-
             if (params.action === 'store') {
-                const data = {
+                const data = repository.create({
                     ...params.data,
                     createdAt: new Date(),
                     updatedAt: new Date(),
-                    id: crypto.randomBytes(16).toString('hex')
+                });
+                const response = await repository.save(data);
+
+                if (response) {
+                    const res = new collectionEntity.model()
+                    Object.assign(res, replaceIdOrUnderscoreId(response, 'id'))
+                    return res;
                 }
 
-                const response = await connection.insertOne(data);
-
-                if (response.insertedId) {
-                    return _.omit(data, '_id');;
-                }
-
-                throw new Error(`Falha ao armanezar na collection ${params.collection}`);
+                throw new Error(`Falha ao armazenar na collection ${params.collection}`);
             }
 
             if (params.action === 'fetch') {
-                const response = await connection.find(params.data).toArray();
+                const response = await repository.find(params.data);
 
-                if (_.size(response)) {
-                    return _.map(response, (item) => _.omit(item, '_id'));
+                if (response.length) {
+                    return response.map(item => {
+                        const res = new collectionEntity.model();
+                        Object.assign(res, replaceIdOrUnderscoreId(item, 'id'));
+                        return res;
+                    });
                 }
 
                 return [];
             }
 
             if (params.action === 'get') {
-                const response = await connection.findOne(params.data);
+                const response = await repository.findOne(params.data);
 
-                if (response?._id) {
-                    return _.omit(response, '_id');
+                if (response) {
+                    const res = new collectionEntity.model()
+                    Object.assign(res, replaceIdOrUnderscoreId(response, 'id'))
+                    return res;
                 }
 
                 return null;
@@ -67,7 +111,7 @@ class MongoDB {
         } catch (e) {
             console.error(e);
         } finally {
-            await client.close();
+            await AppDataSource.destroy();
         }
     }
 }

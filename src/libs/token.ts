@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 import constants from '@/constants';
 
@@ -14,7 +14,7 @@ interface validateParams {
 class Token {
     async create(params: createParams) {
         try {
-            return jwt.sign(params, constants.token.secretKey, { expiresIn: constants.token.expiresIn });
+            return jwt.sign(params, constants.token.secretKey, { expiresIn: constants.token.expiresIn as SignOptions['expiresIn'] });
         } catch (err) {
             throw new Error('Erro ao criar o token!');
         }
@@ -24,6 +24,7 @@ class Token {
         try {
             return jwt.verify(params.token, constants.token.secretKey);
         } catch (err) {
+            console.log('err', err);
             throw new Error('Erro ao validar o token!');
         }
     }

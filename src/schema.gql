@@ -43,9 +43,11 @@ input ScheduleInput {
   customerId: String!
   endsAt: DateTimeISO!
   location: String!
+  percentage: String!
   startsAt: DateTimeISO!
   subject: String!
   teacherId: String!
+  value: Float!
 }
 
 type ScheduleResponseModel {
@@ -55,11 +57,15 @@ type ScheduleResponseModel {
   endsAt: DateTimeISO!
   id: String!
   location: String!
+  percentage: String!
+  percentageByEnum: String!
   startsAt: DateTimeISO!
   subject: String!
+  subjectByEnum: String!
   teacher: UserModelResponse
   teacherId: String!
   updatedAt: DateTimeISO!
+  value: Float!
 }
 
 input StoreUserInput {

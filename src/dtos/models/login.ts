@@ -6,7 +6,6 @@ registerEnumType(AllUserType, {
     name: "AllUserType",
 });
 
-
 @ObjectType()
 export class LoginModel {
     @Field()

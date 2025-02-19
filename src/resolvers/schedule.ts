@@ -1,7 +1,7 @@
 import { Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from "type-graphql";
 import { BaseResolver } from "@/libs/baseResolver";
 
-import { AllUserType } from '@/dtos/enums'
+import { AllUserType, Percentage, ScheduleSubject } from '@/dtos/enums'
 import { ScheduleInput, FetchScheduleInput } from "@/dtos/inputs";
 import { ScheduleModel, ScheduleResponseModel, UserModelResponse } from "@/dtos/models";
 import { FetchSchedulesUC, IFetchSchedulesUC, IStoreScheduleUC, StoreScheduleUC } from "@/useCases/schedule";
@@ -41,6 +41,16 @@ export class SchedulesResolver extends BaseResolver {
             endPoint: context.endPoint,
             function: () => this.StoreSchedule.execute(data)
         })
+    }
+
+    @FieldResolver(() => UserModelResponse)
+    async percentageByEnum(@Root() schedule: ScheduleModel) {
+        return Percentage[schedule.percentage as unknown as keyof typeof Percentage] as string
+    }
+
+    @FieldResolver(() => UserModelResponse)
+    async subjectByEnum(@Root() schedule: ScheduleModel) {
+        return ScheduleSubject[schedule.subject as unknown as keyof typeof ScheduleSubject] as string
     }
 
     @FieldResolver(() => UserModelResponse)

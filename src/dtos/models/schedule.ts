@@ -1,6 +1,15 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, ObjectType, registerEnumType } from "type-graphql";
 
 import { UserModelResponse } from ".";
+import { Percentage, ScheduleSubject } from "@/dtos/enums";
+
+registerEnumType(Percentage, {
+    name: "Percentage",
+});
+
+registerEnumType(ScheduleSubject, {
+    name: "ScheduleSubject",
+});
 
 @ObjectType()
 export class ScheduleModel {
@@ -8,16 +17,7 @@ export class ScheduleModel {
     id: string;
 
     @Field()
-    customerId: string;
-
-    @Field()
-    teacherId: string;
-
-    @Field()
     location: string;
-
-    @Field()
-    subject: string;
 
     @Field()
     startsAt: Date;
@@ -30,6 +30,22 @@ export class ScheduleModel {
 
     @Field()
     updatedAt: Date;
+
+    @Field()
+    value: number;
+
+    @Field(() => String)
+    subject: ScheduleSubject;
+
+    @Field(() => String)
+    percentage: Percentage;
+
+    @Field()
+    customerId: string;
+
+    @Field()
+    teacherId: string;
+
 }
 
 @ObjectType()
@@ -39,4 +55,10 @@ export class ScheduleResponseModel extends ScheduleModel {
 
     @Field(() => UserModelResponse, { nullable: true })
     teacher?: UserModelResponse;
+
+    @Field(() => String)
+    percentageByEnum: Percentage;
+
+    @Field(() => String)
+    subjectByEnum: ScheduleSubject;
 }

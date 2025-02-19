@@ -12,9 +12,9 @@ export class FetchUsersUC implements IFetchUsersUC {
     //TODO -> mover para o mongo
     async execute(data: IFetchUsersUCArgs): Promise<IFetchUsersUCResponse[]> {
         const query = _.reduce(data, (result, value, key) => {
-            if (_.size(value)) { result.$and.push({ [key]: { $in: value } }) }
+            if (_.size(value)) { result[key] = { $in: value } }
             return result
-        }, { "$and": [] } as any)
+        }, {} as any)
 
         return await this.MongoDB.run({
             action: 'fetch',
